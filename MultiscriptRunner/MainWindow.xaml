@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:VeeziQueueManager"
         mc:Ignorable="d"
         Closing="MainWindow_Closing"
-        Title="MultiCuck Runner" >
+        Title="MultiScript Runner" >
     
     <DockPanel>
         <ToolBarTray DockPanel.Dock="Top">
