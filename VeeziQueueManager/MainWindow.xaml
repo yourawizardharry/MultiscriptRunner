@@ -1,4 +1,5 @@
-﻿<Window x:Class="MultiscriptRunner.MainWindow"
+﻿
+    <Window x:Class="MultiscriptRunner.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,14 +8,35 @@
         mc:Ignorable="d"
         Closing="MainWindow_Closing"
         Title="MultiCuck Runner" >
+    
     <DockPanel>
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <Menu Margin="0,0,10,0">
+                    <MenuItem Header="File">
+                        <MenuItem Header="Save Results" Click="OutputToCSV"></MenuItem>
+                    </MenuItem>
+                </Menu>
+                <Button Height="20" Margin="0,0,10,0" Click="ExecuteQueryButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,5,0">Execute Query</TextBlock>
+                        <Image Source="Resources/Images/execute-icon.jpg"></Image>
+                    </StackPanel>
+                </Button>
+                <Button Height="20" Margin="0,0,10,0" Click="AbortQuery_ButtonClick">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,5,0">Abort Query</TextBlock>
+                        <Image Source="Resources/Images/abort-icon.png"></Image>
+                    </StackPanel>
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
         <DataGrid AutoGenerateColumns="True" DockPanel.Dock="Left" x:Name="ConnectionGrid" ItemsSource="{Binding}" CanUserAddRows="False" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"></DataGrid>
         
         
 
         <StackPanel>
-            <TextBox x:Name="QueryBox" MinHeight="550" MinWidth="500" AcceptsReturn="True"></TextBox>
-            <Button x:Name="ExecuteQueryButton" Background="Red" Content="Execute Query" MinHeight="50" MaxWidth="200" Click="ExecuteQueryButton_Click"></Button>
+            <TextBox x:Name="QueryBox" MinHeight="500" MinWidth="500" AcceptsReturn="True" Margin="0,0,0,10" Text="Enter Query Here.." GotFocus="QueryBox_GotFocus" LostFocus="QueryBox_LostFocus"></TextBox>
             <Button x:Name="SelectAllBackOfficeDb"  Content="Filter All BackOffice DB" MaxHeight="30" MaxWidth="150" Click="SelectAllBackOfficeDb_Click"></Button>
             <Button x:Name="SelectAllVgcDb" Content="Filter All VGC DB" MaxHeight="30" MaxWidth="150" Click="SelectAllVgcDb_Click"></Button>
             <Button x:Name="SelectAllLoyaltyDb" Content="Filter All Loyalty DB" MaxHeight="30" MaxWidth="150" Click="SelectAllLoyaltyDb_Click"></Button>

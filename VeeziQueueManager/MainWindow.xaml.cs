@@ -16,6 +16,8 @@ using MultiscriptRunner.Database;
 using System.Data;
 using System.Collections;
 using MS.Internal;
+using Microsoft.Win32;
+using System.IO;
 
 namespace MultiscriptRunner
 {
@@ -41,7 +43,7 @@ namespace MultiscriptRunner
         public void InitalizeDatabaseConnection()
         {
             this.Hide();
-            if(databaseConnectionWindow == null) databaseConnectionWindow = new DatabaseConnector();
+            if (databaseConnectionWindow == null) databaseConnectionWindow = new DatabaseConnector();
             databaseConnectionWindow.Show();
             databaseConnectionWindow.AddDelegate(() =>
             {
@@ -96,15 +98,68 @@ namespace MultiscriptRunner
 
         private void ExecuteQueryButton_Click(object sender, RoutedEventArgs e)
         {
-            var dbList = GetDatabaseListFromView(ConnectionGrid);
-            MessageBox.Show(dbList.Count + " Databases to execute: " + Environment.NewLine + string.Join(";", dbList));
-            databaseQueryService.ExecuteDatabaseJob(dbList, databaseConnectionWindow.ConnectionStrBuilder, QueryBox.Text, ResultGrid);
+            if (!databaseQueryService.IsJobExecuting())
+            {
+                var dbList = GetDatabaseListFromView(ConnectionGrid);
+                if ((MessageBox.Show(dbList.Count + " Databases to execute: " + Environment.NewLine + string.Join(";", dbList), "Confirmation", MessageBoxButton.YesNo)) == MessageBoxResult.Yes)
+                {
+                    databaseQueryService.ExecuteDatabaseJob(dbList, databaseConnectionWindow.ConnectionStrBuilder, QueryBox.Text, ResultGrid);
+                }
+            }
+            else MessageBox.Show("Current job is still executing, please wait..");
         }
 
         private void SwitchServer_Click(object sender, RoutedEventArgs e)
         {
+            databaseQueryService.CancelJob();
             this.Hide();
             databaseConnectionWindow.Show();
+        }
+
+        private void DataGridToCSV(DataGrid dg, string path)
+        {
+            dg.SelectAllCells();
+            dg.ClipboardCopyMode = DataGridClipboardCopyMode.IncludeHeader;
+            ApplicationCommands.Copy.Execute(null, dg);
+            ResultGrid.UnselectAllCells();
+            File.AppendAllText(path, (string)System.Windows.Clipboard.GetData(System.Windows.DataFormats.CommaSeparatedValue), UnicodeEncoding.UTF8);
+        }
+        
+
+        private void OutputToCSV(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "CSV|*.csv"
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                DataGridToCSV(ResultGrid, saveFileDialog.FileName);
+            }
+            
+        }
+
+        private void QueryBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if(QueryBox.Text == "Enter Query Here..")
+            {
+                QueryBox.Text = "";
+            }
+        }
+
+        private void QueryBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (QueryBox.Text == "")
+            {
+                QueryBox.Text = "Enter Query Here..";
+            }
+
+        }
+
+        private void AbortQuery_ButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (databaseQueryService.CancelJob()) MessageBox.Show("Query Cancelled", "Message");
+            else MessageBox.Show("No Queries are Currently Running", "Message");
         }
     }
 }

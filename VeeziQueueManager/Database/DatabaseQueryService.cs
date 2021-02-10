@@ -16,9 +16,12 @@ namespace MultiscriptRunner.Database
     class DatabaseQueryService
     {
         private string connectionString;
+        private BackgroundWorker bw;
+        
         public DatabaseQueryService(string connectionString)
         {
             this.connectionString = connectionString;
+            bw = new BackgroundWorker();
         }
         public DataTable getDatabaseList()
         {
@@ -55,90 +58,106 @@ namespace MultiscriptRunner.Database
             return dbTable;
         }
 
+        public bool IsJobExecuting()
+        {
+            return bw.IsBusy;
+        }
+
+        public bool CancelJob()
+        {
+            bw.WorkerSupportsCancellation = true;
+            if (!bw.IsBusy) return false;
+            bw.CancelAsync();
+            return true;
+        }
 
         public void ExecuteDatabaseJob(List<string> dbNames, SqlConnectionStringBuilder connBuilder, string query, DataGrid dg)
         {
-            BackgroundWorker bw = new BackgroundWorker();
-            DataTable dt = new DataTable();
-            Object dtLock = new Object();
-            BindingOperations.EnableCollectionSynchronization(dt.DefaultView, dtLock);
-            bw.DoWork += (sender, args) =>
+            if (!bw.IsBusy)
             {
-                foreach (string s in dbNames)
+                bw.WorkerSupportsCancellation = false; //Have to set this to false, otherwise causes performance issues on UI thread.
+                DataTable dt = new DataTable();
+                Object dtLock = new Object();
+                BindingOperations.EnableCollectionSynchronization(dt.DefaultView, dtLock);
+                bw.DoWork += (sender, args) =>
                 {
-                    connBuilder.InitialCatalog = s;
-                    using (SqlConnection conn = new SqlConnection(connBuilder.ToString()))
+                    foreach (string s in dbNames)
                     {
-                        conn.Open();
-                        using (SqlCommand cmd = new SqlCommand(query, conn))
+                        if (bw.CancellationPending) break;
+                        connBuilder.InitialCatalog = s;
+                        using (SqlConnection conn = new SqlConnection(connBuilder.ToString()))
                         {
-                            try
+                            conn.Open();
+                            using (SqlCommand cmd = new SqlCommand(query, conn))
                             {
-                                using (SqlDataReader dr = cmd.ExecuteReader())
+                                try
                                 {
-                                    if (dt.Columns.Count < 1)
+                                    using (SqlDataReader dr = cmd.ExecuteReader())
                                     {
-                                        dt.Columns.Add("DatabaseName");
-                                        dt.Columns.Add("RowsAffected");
-                                        foreach (var columnSchema in dr.GetColumnSchema())
+                                        if (dt.Columns.Count < 1)
                                         {
-                                            dt.Columns.Add(columnSchema.ColumnName);
-                                        }
-                                        bw.ReportProgress(1);
-                                    }
-                                    if (!dr.HasRows)
-                                    {
-                                        DataRow dataRow = dt.NewRow();
-                                        dataRow[0] = new string(s);
-                                        dataRow[1] = dr.RecordsAffected;
-                                        lock (dt)
-                                        {
-                                            dt.Rows.Add(dataRow);
-                                        }
-                                    }
-                                    while (dr.Read())
-                                    {
-                                        DataRow dataRow = dt.NewRow();
-                                        dataRow[0] = new string(s);
-                                        dataRow[1] = dr.RecordsAffected;
-                                        for (int i = 0; i < dr.FieldCount; ++i)
-                                        {
-                                            if (dr.IsDBNull(i))
+                                            dt.Columns.Add("DatabaseName");
+                                            dt.Columns.Add("RowsAffected");
+                                            foreach (var columnSchema in dr.GetColumnSchema())
                                             {
-
-                                                dataRow[i + 2] = new string("NULL");
+                                                dt.Columns.Add(columnSchema.ColumnName);
                                             }
-                                            else dataRow[i + 2] = Convert.ToString(dr.GetValue(i));
+                                            bw.ReportProgress(1);
                                         }
-                                        lock (dt)
+                                        if (!dr.HasRows)
                                         {
-                                            dt.Rows.Add(dataRow);
+                                            DataRow dataRow = dt.NewRow();
+                                            dataRow[0] = new string(s);
+                                            dataRow[1] = dr.RecordsAffected;
+                                            lock (dt)
+                                            {
+                                                dt.Rows.Add(dataRow);
+                                            }
                                         }
-                                        bw.ReportProgress(1);
+                                        while (dr.Read())
+                                        {
+                                            DataRow dataRow = dt.NewRow();
+                                            dataRow[0] = new string(s);
+                                            dataRow[1] = dr.RecordsAffected;
+                                            for (int i = 0; i < dr.FieldCount; ++i)
+                                            {
+                                                if (dr.IsDBNull(i))
+                                                {
+
+                                                    dataRow[i + 2] = new string("NULL");
+                                                }
+                                                else dataRow[i + 2] = Convert.ToString(dr.GetValue(i));
+                                            }
+                                            lock (dt)
+                                            {
+                                                dt.Rows.Add(dataRow);
+                                            }
+                                            bw.ReportProgress(1);
+                                        }
+                                        Console.WriteLine();
                                     }
-                                    Console.WriteLine();
                                 }
-                            }
-                            catch (Exception e)
-                            {
-                                MessageBox.Show("Execute query failed: " + e.ToString());
+                                catch (Exception e)
+                                {
+                                    MessageBox.Show("Execute query failed: " + e.ToString());
+                                }
                             }
                         }
                     }
-                }
-            };
+                };
 
-            bw.ProgressChanged += (sender, args) =>
-            {
-                lock (dt)
+                bw.ProgressChanged += (sender, args) =>
                 {
-                    dg.DataContext = dt.DefaultView;
-                }
-            };
+                    lock (dt)
+                    {
+                        dg.DataContext = dt.DefaultView;
+                    }
+                };
 
-            bw.WorkerReportsProgress = true;
+                bw.WorkerReportsProgress = true;
 
-            bw.RunWorkerAsync();
+                bw.RunWorkerAsync();
+            }
         }
     }
 }

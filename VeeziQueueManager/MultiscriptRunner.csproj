@@ -8,9 +8,30 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Resources\NewFolder\**" />
+    <EmbeddedResource Remove="Resources\NewFolder\**" />
+    <None Remove="Resources\NewFolder\**" />
+    <Page Remove="Resources\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Images\abort-icon.png" />
+    <None Remove="Resources\Images\execute-icon.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.Storage.Queues" Version="12.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1"></PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\abort-icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\execute-icon.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>
