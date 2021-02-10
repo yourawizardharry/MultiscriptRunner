@@ -103,6 +103,10 @@ namespace MultiscriptRunner
                 var dbList = GetDatabaseListFromView(ConnectionGrid);
                 if ((MessageBox.Show(dbList.Count + " Databases to execute: " + Environment.NewLine + string.Join(";", dbList), "Confirmation", MessageBoxButton.YesNo)) == MessageBoxResult.Yes)
                 {
+                    databaseQueryService.addDelegate(() =>
+                    {
+                        MessageBox.Show("Sql batch completed", "Message");
+                    });
                     databaseQueryService.ExecuteDatabaseJob(dbList, databaseConnectionWindow.ConnectionStrBuilder, QueryBox.Text, ResultGrid);
                 }
             }

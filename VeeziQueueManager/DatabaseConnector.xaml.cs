@@ -21,6 +21,7 @@ namespace MultiscriptRunner
     /// </summary>
     public partial class DatabaseConnector : Window
     {
+        public delegate int NewDelegate();
         public string connectionString { get; set; }
         public SqlConnectionStringBuilder ConnectionStrBuilder {get; set; }
         private NewDelegate dele;
@@ -30,7 +31,7 @@ namespace MultiscriptRunner
             this.Hide();
         }
 
-        public delegate int NewDelegate();
+        
 
         public void AddDelegate(NewDelegate newDelegate)
         {

@@ -17,12 +17,29 @@ namespace MultiscriptRunner.Database
     {
         private string connectionString;
         private BackgroundWorker bw;
+        public delegate void SqlBatchComplete();
+        private SqlBatchComplete jobCompletedDelegate;
         
         public DatabaseQueryService(string connectionString)
         {
             this.connectionString = connectionString;
             bw = new BackgroundWorker();
+            bw.RunWorkerCompleted += (sender, args) =>
+            {
+                if (jobCompletedDelegate != null) jobCompletedDelegate.Invoke();
+            };
         }
+
+        private void Bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void addDelegate(SqlBatchComplete dele)
+        {
+            jobCompletedDelegate = dele;
+        }
+
         public DataTable getDatabaseList()
         {
             List<string> dbNameList = new List<string>();
