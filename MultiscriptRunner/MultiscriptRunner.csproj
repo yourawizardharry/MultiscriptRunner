@@ -18,6 +18,7 @@
   <ItemGroup>
     <None Remove="Resources\Images\abort-icon.png" />
     <None Remove="Resources\Images\execute-icon.jpg" />
+    <None Remove="Resources\Images\switch-database.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +32,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Images\execute-icon.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\switch-database.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

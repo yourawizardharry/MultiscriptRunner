@@ -114,7 +114,7 @@ namespace MultiscriptRunner.Database
                                         if (dt.Columns.Count < 1)
                                         {
                                             dt.Columns.Add("DatabaseName");
-                                            dt.Columns.Add("RowsAffected");
+                                            dt.Columns.Add("RowsUpdated");
                                             foreach (var columnSchema in dr.GetColumnSchema())
                                             {
                                                 dt.Columns.Add(columnSchema.ColumnName);
@@ -125,7 +125,7 @@ namespace MultiscriptRunner.Database
                                         {
                                             DataRow dataRow = dt.NewRow();
                                             dataRow[0] = new string(s);
-                                            dataRow[1] = dr.RecordsAffected;
+                                            dataRow[1] = (dr.RecordsAffected == -1 ? 0 : dr.RecordsAffected);
                                             lock (dt)
                                             {
                                                 dt.Rows.Add(dataRow);

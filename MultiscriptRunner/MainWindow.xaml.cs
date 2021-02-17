@@ -71,21 +71,6 @@ namespace MultiscriptRunner
             return dbList;
         }
 
-        private void SelectAllBackOfficeDb_Click(object sender, RoutedEventArgs e)
-        {
-            ConnectionGrid.DataContext = databaseQueryService.GetFilteredDatabaseList("BackOffice");
-        }
-
-        private void SelectAllVgcDb_Click(object sender, RoutedEventArgs e)
-        {
-            ConnectionGrid.DataContext = databaseQueryService.GetFilteredDatabaseList("VeeziVGC");
-        }
-
-        private void SelectAllLoyaltyDb_Click(object sender, RoutedEventArgs e)
-        {
-            ConnectionGrid.DataContext = databaseQueryService.GetFilteredDatabaseList("VeeziLoyalty");
-        }
-
         private void SelectAll_Click(object sender, RoutedEventArgs e)
         {
             ConnectionGrid.SelectAll();
@@ -93,6 +78,7 @@ namespace MultiscriptRunner
 
         private void ResetFilter_Click(object sender, RoutedEventArgs e)
         {
+            DbFilterBox.Text = "Filter by name..";
             ConnectionGrid.DataContext = databaseQueryService.getDatabaseList();
         }
 
@@ -164,6 +150,31 @@ namespace MultiscriptRunner
         {
             if (databaseQueryService.CancelJob()) MessageBox.Show("Query Cancelled", "Message");
             else MessageBox.Show("No Queries are Currently Running", "Message");
+        }
+
+        private void DbNameFilter_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (DbFilterBox.Text == "Filter by name..") DbFilterBox.Text = "";
+        }
+
+        private void DbNameFilter_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (DbFilterBox.Text == "") DbFilterBox.Text = "Filter by name..";
+        }
+
+        private void DbFilterBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (databaseQueryService != null)
+            {
+                if (DbFilterBox.Text != "" && DbFilterBox.Text != "Filter by name..") ConnectionGrid.DataContext = databaseQueryService.GetFilteredDatabaseList(DbFilterBox.Text);
+                else ConnectionGrid.DataContext = databaseQueryService.getDatabaseList();
+            }
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ConnectionGrid.Height = e.NewSize.Height - 150;
+            QueryBox.Height = e.NewSize.Height - 125;
         }
     }
 }
