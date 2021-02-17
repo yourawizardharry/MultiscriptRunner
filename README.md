@@ -6,4 +6,4 @@ Previously I was using Redgate's solution to acheive this, although I didn't wan
 
 Please note that you will need to use the SQL servers master login in order for this tool to work, as it acheives this function by switching the catalog thoughtout execution.
 
-![Alt text](/Resources/Images/Screenshot.png?raw=true "Screenshot")
+![Alt text](/MultiscriptRunner/Resources/Images/Screenshot.png?raw=true "Screenshot")
