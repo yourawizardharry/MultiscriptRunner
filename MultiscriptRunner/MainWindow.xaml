@@ -4,7 +4,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VeeziQueueManager"
+        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         mc:Ignorable="d"
         Closing="MainWindow_Closing"
         Title="MultiScript Runner"
@@ -47,7 +47,7 @@
         
 
         <StackPanel>
-            <TextBox x:Name="QueryBox" Height="675" Width="500" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" AcceptsReturn="True" Margin="0,0,0,10" Text="Enter Query Here.." GotFocus="QueryBox_GotFocus" LostFocus="QueryBox_LostFocus"></TextBox>
+            <avalonEdit:TextEditor x:Name="QueryBox" Height="675" Width="500" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="0,0,0,10" Text="Enter Query Here.." GotFocus="QueryBox_GotFocus" LostFocus="QueryBox_LostFocus"></avalonEdit:TextEditor>
         </StackPanel>
 
         <DataGrid AutoGenerateColumns="True" DockPanel.Dock="Bottom" x:Name="ResultGrid" ItemsSource="{Binding}" CanUserAddRows="False" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True">

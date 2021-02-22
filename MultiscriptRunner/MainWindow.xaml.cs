@@ -32,8 +32,20 @@ namespace MultiscriptRunner
         {
             InitializeComponent();
             InitalizeDatabaseConnection();
+            Load_Avalon();
         }
-
+        private void Load_Avalon()
+        {
+            using (var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("MultiscriptRunner.Resources.sql.xshd"))
+            {
+                using (var reader = new System.Xml.XmlTextReader(stream))
+                {
+                    QueryBox.SyntaxHighlighting =
+                        ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader,
+                        ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
+                }
+            }
+        }
 
         void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
